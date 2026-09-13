@@ -1,8 +1,21 @@
 """Parsers that turn bank alert email bodies into transaction records."""
+import html
 import re
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
+
+
+def _clean_body(body: str) -> str:
+    """Strip HTML tags/entities so regexes see plain, contiguous text.
+
+    Bank alert emails are usually sent as HTML; a tag sitting between two
+    words (e.g. "account</span> <b>01-73...") would otherwise break a
+    pattern that expects them adjacent.
+    """
+    text = re.sub(r"<[^>]+>", " ", body)
+    text = html.unescape(text)
+    return re.sub(r"\s+", " ", text).strip()
 
 
 @dataclass
@@ -33,7 +46,7 @@ _SC_PATTERN = re.compile(
 
 
 def parse_standard_chartered(body: str, subject: str) -> Optional[Transaction]:
-    text = re.sub(r"\s+", " ", body).strip()
+    text = _clean_body(body)
     match = _SC_PATTERN.search(text)
     if not match:
         return None
