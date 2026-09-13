@@ -1,6 +1,6 @@
 - 👋 Hi, I’m @hashirkhann
-- 👀 I’m interested in learning about Web Development
-- 🌱 I’m currently learning HTML basics
+- 👀 I’m interested in learning about development and automation
+
 
 <!---
 hashirkhann/hashirkhann is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
