@@ -41,6 +41,7 @@ def get_worksheet(service_account_file: str, sheet_id: str, worksheet_name: str)
     elif "Message ID" not in header:
         # Migrate sheets created before de-dup switched from bank reference
         # (not every transaction type has one) to the email's Message ID.
+        worksheet.add_cols(1)
         worksheet.update_cell(1, len(header) + 1, "Message ID")
 
     return worksheet
