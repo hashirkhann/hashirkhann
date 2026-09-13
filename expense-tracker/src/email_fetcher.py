@@ -73,7 +73,7 @@ def fetch_new_emails(
     """Fetch emails from the given senders with UID greater than last_uid."""
     results: List[RawEmail] = []
 
-    conn = imaplib.IMAP4_SSL(host, port)
+    conn = imaplib.IMAP4_SSL(host, port, timeout=30)
     try:
         conn.login(user, password)
         conn.select(folder)
