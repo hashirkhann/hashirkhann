@@ -66,7 +66,7 @@ Run it again any time — it only appends new, unseen transactions.
 you can adapt — store `.env` values and `credentials.json` contents as
 repository secrets rather than committing them (add secrets under
 `GOOGLE_CREDENTIALS_JSON`, `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_USER`,
-`EMAIL_PASS`, `EMAIL_FOLDER`, `BANK_SENDERS`, `GOOGLE_SHEET_ID`,
+`EMAIL_PASS`, `EMAIL_FOLDER`, `BANK_SENDERS`, `SINCE_DATE`, `GOOGLE_SHEET_ID`,
 `GOOGLE_WORKSHEET_NAME`). The workflow commits the updated `state.json`
 back to the repo after each run so it doesn't reprocess old emails —
 that's why `state.json` is tracked in git rather than ignored, and it

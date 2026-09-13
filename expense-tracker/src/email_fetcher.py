@@ -69,8 +69,13 @@ def fetch_new_emails(
     folder: str,
     senders: List[str],
     last_uid: int,
+    since_date: str = None,
 ) -> List[RawEmail]:
-    """Fetch emails from the given senders with UID greater than last_uid."""
+    """Fetch emails from the given senders with UID greater than last_uid.
+
+    since_date, if given, is an IMAP-format date string (e.g. "01-Jun-2026")
+    that bounds how far back the very first (last_uid=0) fetch reaches.
+    """
     results: List[RawEmail] = []
 
     conn = imaplib.IMAP4_SSL(host, port, timeout=30)
@@ -78,16 +83,17 @@ def fetch_new_emails(
         conn.login(user, password)
         conn.select(folder)
 
-        sender_criteria = " ".join(f'FROM "{s}"' for s in senders)
         if len(senders) > 1:
             # (OR FROM "a" (OR FROM "b" FROM "c")) style nesting
-            search_expr = senders[0]
             or_expr = f'FROM "{senders[0]}"'
             for s in senders[1:]:
                 or_expr = f'(OR {or_expr} FROM "{s}")'
             criteria = f"UID {last_uid + 1}:* {or_expr}"
         else:
             criteria = f'UID {last_uid + 1}:* FROM "{senders[0]}"'
+
+        if since_date:
+            criteria = f'SINCE {since_date} {criteria}'
 
         status, data = conn.uid("search", None, criteria)
         if status != "OK" or not data or not data[0]:

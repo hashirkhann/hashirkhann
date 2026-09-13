@@ -11,6 +11,7 @@ permissions:
 jobs:
   run:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     defaults:
       run:
         working-directory: expense-tracker
@@ -37,6 +38,7 @@ jobs:
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
           EMAIL_FOLDER: ${{ secrets.EMAIL_FOLDER }}
           BANK_SENDERS: ${{ secrets.BANK_SENDERS }}
+          SINCE_DATE: ${{ secrets.SINCE_DATE }}
           GOOGLE_SERVICE_ACCOUNT_FILE: credentials.json
           GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
           GOOGLE_WORKSHEET_NAME: ${{ secrets.GOOGLE_WORKSHEET_NAME }}

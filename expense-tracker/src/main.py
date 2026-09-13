@@ -2,6 +2,7 @@
 import logging
 import os
 import sys
+from datetime import datetime
 
 from dotenv import load_dotenv
 
@@ -31,10 +32,17 @@ def main():
 
     state_file = os.environ.get("STATE_FILE", "state.json")
 
+    since_date = None
+    since_date_raw = os.environ.get("SINCE_DATE")
+    if since_date_raw:
+        since_date = datetime.strptime(since_date_raw, "%Y-%m-%d").strftime("%d-%b-%Y")
+
     last_uid = load_last_uid(state_file)
     log.info("Checking for emails newer than UID %s", last_uid)
 
-    raw_emails = fetch_new_emails(host, port, user, password, folder, senders, last_uid)
+    raw_emails = fetch_new_emails(
+        host, port, user, password, folder, senders, last_uid, since_date=since_date
+    )
     log.info("Fetched %d new email(s)", len(raw_emails))
 
     if not raw_emails:
