@@ -1,0 +1,54 @@
+name: Expense Tracker
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: expense-tracker
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Write service account credentials
+        run: echo "$GOOGLE_CREDENTIALS_JSON" > credentials.json
+        env:
+          GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+
+      - name: Run tracker
+        env:
+          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+          EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_FOLDER: ${{ secrets.EMAIL_FOLDER }}
+          BANK_SENDERS: ${{ secrets.BANK_SENDERS }}
+          GOOGLE_SERVICE_ACCOUNT_FILE: credentials.json
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          GOOGLE_WORKSHEET_NAME: ${{ secrets.GOOGLE_WORKSHEET_NAME }}
+        run: python3 -m src.main
+
+      - name: Persist last-processed state
+        run: |
+          rm -f credentials.json
+          if [ -n "$(git status --porcelain state.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add state.json
+            git commit -m "Update expense tracker state [skip ci]"
+            git push
+          fi
