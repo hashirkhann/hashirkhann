@@ -38,6 +38,36 @@ SADAPKKA202609121889170233706254 on 12/09/26.</p>
 </body></html>
 """
 
+ONLINE_TRANSFER_BODY = """
+Dear Client,
+Alerts
+September 08 2026, 05:00 PM
+
+A transaction of PKR 8,000.00 has been completed on Acc. Number 01-73***67-01
+to ****7537 on 08/09/26 through SC Raast Online Banking. Thank you!
+
+Don't miss out on the latest Standard Chartered promotions & benefits.
+"""
+
+CARD_PAYMENT_BODY = """
+Dear Client,
+Alerts
+September 07 2026, 03:02 PM
+
+SCBPL: PKR 609.00 have been paid at SWEET CREME LAHORE PAK using MasterCard
+Platinum 1738 on 07-09-26. Avail Limit PKR20924.06. For assistance call
+111-002-002. Happy shopping!
+"""
+
+ONLINE_CARD_BODY = """
+Dear Client,
+Alerts
+September 07 2026, 01:33 AM
+
+An online transaction has been made from your card no. ending with 1738 for
+PKR 1,017.98 at FOOD PANDA KARACHI PAK. Avail Limit PKR21533.06. SCBPL
+"""
+
 SENDER = "alerts.pk@sc.com"
 SUBJECT = "Standard Chartered: Transaction Alert"
 
@@ -49,7 +79,7 @@ def test_parses_credit_transaction():
     assert txn.amount == 3000.00
     assert txn.currency == "PKR"
     assert txn.own_account == "01-73***67-01"
-    assert txn.counter_account == "****7537"
+    assert txn.counterparty == "****7537"
     assert txn.reference == "SADAPKKA202609121889170233706254"
     assert txn.date.strftime("%Y-%m-%d") == "2026-09-12"
     assert txn.bank == "Standard Chartered"
@@ -60,7 +90,7 @@ def test_parses_debit_transaction():
     assert txn is not None
     assert txn.txn_type == "debit"
     assert txn.amount == 1250.50
-    assert txn.counter_account == "****9981"
+    assert txn.counterparty == "****9981"
     assert txn.reference == "SADAPKKA202609121889170233706999"
 
 
@@ -69,8 +99,41 @@ def test_parses_html_body():
     assert txn is not None
     assert txn.txn_type == "credit"
     assert txn.amount == 3000.00
-    assert txn.counter_account == "****7537"
+    assert txn.counterparty == "****7537"
     assert txn.reference == "SADAPKKA202609121889170233706254"
+
+
+def test_parses_online_transfer():
+    txn = parse_email(SENDER, ONLINE_TRANSFER_BODY, SUBJECT)
+    assert txn is not None
+    assert txn.txn_type == "debit"
+    assert txn.amount == 8000.00
+    assert txn.currency == "PKR"
+    assert txn.own_account == "01-73***67-01"
+    assert txn.counterparty == "****7537"
+    assert txn.date.strftime("%Y-%m-%d") == "2026-09-08"
+
+
+def test_parses_card_payment():
+    txn = parse_email(SENDER, CARD_PAYMENT_BODY, SUBJECT)
+    assert txn is not None
+    assert txn.txn_type == "debit"
+    assert txn.amount == 609.00
+    assert txn.currency == "PKR"
+    assert txn.own_account == "Card •1738"
+    assert txn.counterparty == "SWEET CREME LAHORE PAK"
+    assert txn.date.strftime("%Y-%m-%d") == "2026-09-07"
+
+
+def test_parses_online_card_transaction():
+    txn = parse_email(SENDER, ONLINE_CARD_BODY, SUBJECT)
+    assert txn is not None
+    assert txn.txn_type == "debit"
+    assert txn.amount == 1017.98
+    assert txn.currency == "PKR"
+    assert txn.own_account == "Card •1738"
+    assert txn.counterparty == "FOOD PANDA KARACHI PAK"
+    assert txn.date.strftime("%Y-%m-%d %H:%M") == "2026-09-07 01:33"
 
 
 def test_unknown_sender_returns_none():

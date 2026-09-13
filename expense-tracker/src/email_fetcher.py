@@ -15,6 +15,7 @@ class RawEmail:
     sender: str
     subject: str
     body: str
+    message_id: str
 
 
 def _decode(value: str) -> str:
@@ -118,8 +119,11 @@ def fetch_new_emails(
 
             subject = _decode(msg.get("Subject", ""))
             body = _extract_body(msg)
+            message_id = msg.get("Message-ID", "") or f"uid-{uid}"
 
-            results.append(RawEmail(uid=uid, sender=sender, subject=subject, body=body))
+            results.append(
+                RawEmail(uid=uid, sender=sender, subject=subject, body=body, message_id=message_id)
+            )
 
         return results
     finally:

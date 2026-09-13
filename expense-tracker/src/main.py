@@ -56,6 +56,7 @@ def main():
         if txn is None:
             log.warning("Could not parse email from %s: %s", raw.sender, raw.subject)
             continue
+        txn.message_id = raw.message_id
         transactions.append(txn)
 
     log.info("Parsed %d transaction(s)", len(transactions))
