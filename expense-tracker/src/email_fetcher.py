@@ -5,6 +5,7 @@ import json
 import os
 from dataclasses import dataclass
 from email.header import decode_header
+from email.message import Message
 from typing import List
 
 
@@ -29,7 +30,7 @@ def _decode(value: str) -> str:
     return decoded
 
 
-def _extract_body(msg: email.message.Message) -> str:
+def _extract_body(msg: Message) -> str:
     if msg.is_multipart():
         for part in msg.walk():
             content_type = part.get_content_type()
